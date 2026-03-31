@@ -24,7 +24,7 @@ function Dashboard() {
           <div className="card">Orders: 3</div>
           <div className="card">Revenue: ₹50,000</div>
         </div>
-
+        Coming Soooon.......
       </div>
     </div>
   );
