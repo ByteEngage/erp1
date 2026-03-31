@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { loginUser } from "../api/auth";
-import "./Login.css";
+import "./login.css";
 
 function Login() {
   const [form, setForm] = useState({
