@@ -1,7 +1,7 @@
 {
   "name": "my-app",
   "version": "0.1.0",
-  "homepage": "https://erp.byteengage.com",
+  "homepage": "https://byteengage.com",
   "private": true,
   "scripts": {
     "dev": "vite",

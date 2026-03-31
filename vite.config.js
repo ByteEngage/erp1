@@ -3,5 +3,5 @@ import react from '@vitejs/plugin-react-swc' // Make sure 'plugin-' is in the na
 
 export default defineConfig({
   plugins: [react()],
-  base: "/your-repo-name/", // Important: Use your actual GitHub repo name here
+  base: "/", // Important: Use your actual GitHub repo name here
 })
