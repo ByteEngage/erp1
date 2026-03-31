@@ -7,7 +7,7 @@ function Login() {
     username: "",
     password: ""
   });
-  console.log(loginUser);
+  console.log(import.meta.env.VITE_API_URL);
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
