@@ -7,7 +7,7 @@ function Login() {
     username: "",
     password: ""
   });
-
+  console.log(loginUser);
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
