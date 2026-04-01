@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 
 const navItems = [
@@ -7,7 +7,7 @@ const navItems = [
     links: [
       { to: "/dashboard", icon: "sliders", label: "Dashboard" },
       { to: "/profile", icon: "user", label: "Profile" },
-      { to: "/", icon: "log-in", label: "Sign In" },
+      { to: "/sign-in", icon: "log-in", label: "Sign In" },
       { to: "/sign-up", icon: "user-plus", label: "Sign Up" },
     ],
   },
@@ -37,26 +37,96 @@ const notifications = [
   { icon: "user-plus", color: "text-success", title: "New connection", desc: "Christina accepted your request.", time: "14h ago" },
 ];
 
+const messages = [
+  { name: "Vanessa Tucker", avatar: "avatar-5.jpg", msg: "Nam pretium turpis et arcu.", time: "15m ago" },
+  { name: "William Harris", avatar: "avatar-2.jpg", msg: "Curabitur ligula sapien euismod vitae.", time: "2h ago" },
+  { name: "Christina Mason", avatar: "avatar-4.jpg", msg: "Pellentesque auctor neque nec urna.", time: "4h ago" },
+  { name: "Sharon Lessman", avatar: "avatar-3.jpg", msg: "Aenean tellus metus, bibendum sed.", time: "5h ago" },
+];
+
 export default function MasterLayout({ children, title = "Page" }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [notifOpen, setNotifOpen] = useState(false);
   const [msgOpen, setMsgOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 992);
   const navigate = useNavigate();
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    if (window.feather) window.feather.replace();
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 992;
+      setIsMobile(mobile);
+      if (mobile) setSidebarOpen(false);
+      else setSidebarOpen(true);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setNotifOpen(false);
+        setMsgOpen(false);
+        setUserOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/");
   };
 
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
   return (
-    <div className={`wrapper ${sidebarOpen ? "" : "sidebar-collapsed"}`}>
+    <div className="wrapper" style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+      {/* Overlay for mobile */}
+      {isMobile && sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 99 }}
+        />
+      )}
+
       {/* Sidebar */}
-      <nav id="sidebar" className="sidebar js-sidebar">
-        <div className="sidebar-content js-simplebar">
-          <a className="sidebar-brand" href="/dashboard">
+      <nav
+        id="sidebar"
+        className="sidebar js-sidebar"
+        style={{
+          marginLeft: sidebarOpen ? "0" : "-260px",
+          position: isMobile ? "fixed" : "relative",
+          top: 0,
+          height: "100vh",
+          flexShrink: 0,
+          zIndex: isMobile ? 100 : "auto",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          className="sidebar-content js-simplebar"
+          style={{
+            height: "100vh",
+            overflowY: "auto",
+            overflowX: "hidden",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <NavLink className="sidebar-brand" to="/dashboard">
             <span className="align-middle">ERP System</span>
-          </a>
+          </NavLink>
 
           <ul className="sidebar-nav">
             {navItems.map((section) => (
@@ -66,9 +136,8 @@ export default function MasterLayout({ children, title = "Page" }) {
                   <li className="sidebar-item" key={link.to}>
                     <NavLink
                       to={link.to}
-                      className={({ isActive }) =>
-                        `sidebar-link ${isActive ? "active" : ""}`
-                      }
+                      className={({ isActive }) => `sidebar-link${isActive ? " active" : ""}`}
+                      onClick={() => isMobile && setSidebarOpen(false)}
                     >
                       <i className="align-middle" data-feather={link.icon}></i>
                       <span className="align-middle">{link.label}</span>
@@ -78,18 +147,24 @@ export default function MasterLayout({ children, title = "Page" }) {
               </div>
             ))}
           </ul>
+
+          <div className="sidebar-cta">
+            <div className="sidebar-cta-content">
+              <strong className="d-inline-block mb-2">Upgrade to Pro</strong>
+              <div className="mb-3 text-sm">Looking for more components? Check out our premium version.</div>
+              <div className="d-grid">
+                <a href="#" className="btn btn-primary">Upgrade to Pro</a>
+              </div>
+            </div>
+          </div>
         </div>
       </nav>
 
-      {/* Main Content */}
-      <div className="main">
+      {/* Main */}
+      <div className="main" style={{ flex: 1, overflowY: "auto", overflowX: "hidden", height: "100vh" }}>
         {/* Navbar */}
-        <nav className="navbar navbar-expand navbar-light navbar-bg">
-          <a
-            className="sidebar-toggle js-sidebar-toggle"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            style={{ cursor: "pointer" }}
-          >
+        <nav className="navbar navbar-expand navbar-light navbar-bg" ref={dropdownRef}>
+          <a className="sidebar-toggle js-sidebar-toggle" onClick={toggleSidebar} style={{ cursor: "pointer" }}>
             <i className="hamburger align-self-center"></i>
           </a>
 
@@ -97,7 +172,7 @@ export default function MasterLayout({ children, title = "Page" }) {
             <ul className="navbar-nav navbar-align">
 
               {/* Notifications */}
-              <li className={`nav-item dropdown ${notifOpen ? "show" : ""}`}>
+              <li className={`nav-item dropdown${notifOpen ? " show" : ""}`}>
                 <a
                   className="nav-icon dropdown-toggle"
                   href="#"
@@ -135,7 +210,7 @@ export default function MasterLayout({ children, title = "Page" }) {
               </li>
 
               {/* Messages */}
-              <li className={`nav-item dropdown ${msgOpen ? "show" : ""}`}>
+              <li className={`nav-item dropdown${msgOpen ? " show" : ""}`}>
                 <a
                   className="nav-icon dropdown-toggle"
                   href="#"
@@ -149,20 +224,16 @@ export default function MasterLayout({ children, title = "Page" }) {
                   <div className="dropdown-menu dropdown-menu-lg dropdown-menu-end py-0 show">
                     <div className="dropdown-menu-header">4 New Messages</div>
                     <div className="list-group">
-                      {["Vanessa Tucker", "William Harris", "Christina Mason", "Sharon Lessman"].map((name, i) => (
+                      {messages.map((m, i) => (
                         <a href="#" className="list-group-item" key={i}>
                           <div className="row g-0 align-items-center">
                             <div className="col-2">
-                              <div
-                                className="avatar img-fluid rounded-circle d-flex align-items-center justify-content-center text-white"
-                                style={{ width: 40, height: 40, background: "#3b7ddd", fontSize: 14 }}
-                              >
-                                {name[0]}
-                              </div>
+                              <img src={`/img/avatars/${m.avatar}`} className="avatar img-fluid rounded-circle" alt={m.name} />
                             </div>
                             <div className="col-10 ps-2">
-                              <div className="text-dark">{name}</div>
-                              <div className="text-muted small mt-1">Click to view message.</div>
+                              <div className="text-dark">{m.name}</div>
+                              <div className="text-muted small mt-1">{m.msg}</div>
+                              <div className="text-muted small mt-1">{m.time}</div>
                             </div>
                           </div>
                         </a>
@@ -175,26 +246,28 @@ export default function MasterLayout({ children, title = "Page" }) {
                 )}
               </li>
 
-              {/* User Dropdown */}
-              <li className={`nav-item dropdown ${userOpen ? "show" : ""}`}>
+              {/* User */}
+              <li className={`nav-item dropdown${userOpen ? " show" : ""}`}>
                 <a
                   className="nav-link dropdown-toggle d-none d-sm-inline-block"
                   href="#"
                   onClick={(e) => { e.preventDefault(); setUserOpen(!userOpen); setNotifOpen(false); setMsgOpen(false); }}
                 >
-                  <div
-                    className="avatar img-fluid rounded me-1 d-inline-flex align-items-center justify-content-center text-white"
-                    style={{ width: 32, height: 32, background: "#3b7ddd", fontSize: 13 }}
-                  >
-                    A
-                  </div>
+                  <img src="/img/avatars/avatar.jpg" className="avatar img-fluid rounded me-1" alt="Admin" />
                   <span className="text-dark">Admin</span>
+                </a>
+                <a
+                  className="nav-icon dropdown-toggle d-inline-block d-sm-none"
+                  href="#"
+                  onClick={(e) => { e.preventDefault(); setUserOpen(!userOpen); setNotifOpen(false); setMsgOpen(false); }}
+                >
+                  <i className="align-middle" data-feather="settings"></i>
                 </a>
                 {userOpen && (
                   <div className="dropdown-menu dropdown-menu-end show">
-                    <a className="dropdown-item" href="/profile">
+                    <NavLink className="dropdown-item" to="/profile">
                       <i className="align-middle me-1" data-feather="user"></i> Profile
-                    </a>
+                    </NavLink>
                     <a className="dropdown-item" href="#">
                       <i className="align-middle me-1" data-feather="pie-chart"></i> Analytics
                     </a>
