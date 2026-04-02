@@ -1,7 +1,16 @@
 import axios from "axios";
 
-const API = import.meta.env.VITE_API_URL;
+const API = axios.create({
+  baseURL: "http://localhost:5148",
+});
 
-export const loginUser = async (data) => {
-  return await axios.post(`${API}/auth/login`, data);
-};
+// 🔐 Attach token automatically
+API.interceptors.request.use((req) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    req.headers.Authorization = `Bearer ${token}`;
+  }
+  return req;
+});
+
+export default API;

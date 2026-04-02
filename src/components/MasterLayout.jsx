@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 
+
+
 const navItems = [
   {
     header: "Pages",
@@ -53,10 +55,25 @@ export default function MasterLayout({ children, title = "Page" }) {
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
 
+
+// 🔥 ADD THIS
+
+const [currentUser, setCurrentUser] = useState(null);
   useEffect(() => {
     if (window.feather) window.feather.replace();
   });
+  useEffect(() => {
+  const loadUser = () => {
+    const user = localStorage.getItem("user");
+    setCurrentUser(user ? JSON.parse(user) : null);
+  };
 
+  loadUser();
+
+  window.addEventListener("storage", loadUser);
+  return () => window.removeEventListener("storage", loadUser);
+}, []);
+  
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 992;
@@ -81,10 +98,12 @@ export default function MasterLayout({ children, title = "Page" }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/");
-  };
+ const handleLogout = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  setCurrentUser(null); // 🔥 important
+  navigate("/");
+};
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -254,7 +273,9 @@ export default function MasterLayout({ children, title = "Page" }) {
                   onClick={(e) => { e.preventDefault(); setUserOpen(!userOpen); setNotifOpen(false); setMsgOpen(false); }}
                 >
                   <img src="/img/avatars/avatar.jpg" className="avatar img-fluid rounded me-1" alt="Admin" />
-                  <span className="text-dark">Admin</span>
+                  <span className="text-dark">
+                    {currentUser?.username || "Guest"}
+                  </span>
                 </a>
                 <a
                   className="nav-icon dropdown-toggle d-inline-block d-sm-none"
