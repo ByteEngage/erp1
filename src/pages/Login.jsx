@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import API from "../api/api"; // ✅ correct
+import API from "../api/api";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -9,24 +9,20 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
-      const res = await API.post("/Auth/login", { // ✅ no localhost
-        username,
-        password,
-      });
+      const res = await API.post("/Auth/login", { username, password });
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
       window.dispatchEvent(new Event("userChanged"));
-
       navigate("/dashboard");
-
     } catch (err) {
+      console.error(err);
       alert(err.response?.data?.message || "Login failed");
     }
   };
+
 
   return (
     <main className="d-flex w-100">

@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 
-
-
 const navItems = [
   {
     header: "Pages",
@@ -54,27 +52,21 @@ export default function MasterLayout({ children, title = "Page" }) {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 992);
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
-const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
 
-// 🔥 ADD THIS
   useEffect(() => {
     if (window.feather) window.feather.replace();
   });
+
   useEffect(() => {
-  const loadUser = () => {
-    const user = localStorage.getItem("user");
-    setCurrentUser(user ? JSON.parse(user) : null);
-  };
-
-  loadUser();
-
-  window.addEventListener("userChanged", loadUser);
-
-  return () => {
-    window.removeEventListener("userChanged", loadUser);
-  };
-}, []);
-    
+    const loadUser = () => {
+      const user = localStorage.getItem("user");
+      setCurrentUser(user ? JSON.parse(user) : null);
+    };
+    loadUser();
+    window.addEventListener("userChanged", loadUser);
+    return () => window.removeEventListener("userChanged", loadUser);
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -100,18 +92,26 @@ const [currentUser, setCurrentUser] = useState(null);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-const handleLogout = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
-  setCurrentUser(null);
-
-  window.dispatchEvent(new Event("userChanged")); // 🔥 yaha add
-
-  navigate("/");
-};
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setCurrentUser(null);
+    window.dispatchEvent(new Event("userChanged"));
+    navigate("/");
+  };
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
+  };
+
+  // Shared dropdown style to prevent overflow
+  const dropdownStyle = {
+    position: "absolute",
+    right: 0,
+    left: "auto",
+    maxWidth: "calc(100vw - 16px)",
+    overflowX: "hidden",
+    zIndex: 9999,
   };
 
   return (
@@ -186,8 +186,13 @@ const handleLogout = () => {
 
       {/* Main */}
       <div className="main" style={{ flex: 1, overflowY: "auto", overflowX: "hidden", height: "100vh" }}>
-        {/* Navbar */}
-        <nav className="navbar navbar-expand navbar-light navbar-bg" ref={dropdownRef}>
+
+        {/* Navbar — position: relative is critical so dropdowns anchor here */}
+        <nav
+          className="navbar navbar-expand navbar-light navbar-bg"
+          ref={dropdownRef}
+          style={{ position: "relative" }}
+        >
           <a className="sidebar-toggle js-sidebar-toggle" onClick={toggleSidebar} style={{ cursor: "pointer" }}>
             <i className="hamburger align-self-center"></i>
           </a>
@@ -196,11 +201,16 @@ const handleLogout = () => {
             <ul className="navbar-nav navbar-align">
 
               {/* Notifications */}
-              <li className={`nav-item dropdown${notifOpen ? " show" : ""}`}>
+              <li className={`nav-item dropdown${notifOpen ? " show" : ""}`} style={{ position: "relative" }}>
                 <a
                   className="nav-icon dropdown-toggle"
                   href="#"
-                  onClick={(e) => { e.preventDefault(); setNotifOpen(!notifOpen); setMsgOpen(false); setUserOpen(false); }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setNotifOpen(!notifOpen);
+                    setMsgOpen(false);
+                    setUserOpen(false);
+                  }}
                 >
                   <div className="position-relative">
                     <i className="align-middle" data-feather="bell"></i>
@@ -208,7 +218,10 @@ const handleLogout = () => {
                   </div>
                 </a>
                 {notifOpen && (
-                  <div className="dropdown-menu dropdown-menu-lg dropdown-menu-end py-0 show">
+                  <div
+                    className="dropdown-menu dropdown-menu-lg dropdown-menu-end py-0 show"
+                    style={dropdownStyle}
+                  >
                     <div className="dropdown-menu-header">{notifications.length} New Notifications</div>
                     <div className="list-group">
                       {notifications.map((n, i) => (
@@ -234,25 +247,37 @@ const handleLogout = () => {
               </li>
 
               {/* Messages */}
-              <li className={`nav-item dropdown${msgOpen ? " show" : ""}`}>
+              <li className={`nav-item dropdown${msgOpen ? " show" : ""}`} style={{ position: "relative" }}>
                 <a
                   className="nav-icon dropdown-toggle"
                   href="#"
-                  onClick={(e) => { e.preventDefault(); setMsgOpen(!msgOpen); setNotifOpen(false); setUserOpen(false); }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setMsgOpen(!msgOpen);
+                    setNotifOpen(false);
+                    setUserOpen(false);
+                  }}
                 >
                   <div className="position-relative">
                     <i className="align-middle" data-feather="message-square"></i>
                   </div>
                 </a>
                 {msgOpen && (
-                  <div className="dropdown-menu dropdown-menu-lg dropdown-menu-end py-0 show">
+                  <div
+                    className="dropdown-menu dropdown-menu-lg dropdown-menu-end py-0 show"
+                    style={dropdownStyle}
+                  >
                     <div className="dropdown-menu-header">4 New Messages</div>
                     <div className="list-group">
                       {messages.map((m, i) => (
                         <a href="#" className="list-group-item" key={i}>
                           <div className="row g-0 align-items-center">
                             <div className="col-2">
-                              <img src={`/img/avatars/${m.avatar}`} className="avatar img-fluid rounded-circle" alt={m.name} />
+                              <img
+                                src={`/img/avatars/${m.avatar}`}
+                                className="avatar img-fluid rounded-circle"
+                                alt={m.name}
+                              />
                             </div>
                             <div className="col-10 ps-2">
                               <div className="text-dark">{m.name}</div>
@@ -271,11 +296,16 @@ const handleLogout = () => {
               </li>
 
               {/* User */}
-              <li className={`nav-item dropdown${userOpen ? " show" : ""}`}>
+              <li className={`nav-item dropdown${userOpen ? " show" : ""}`} style={{ position: "relative" }}>
                 <a
                   className="nav-link dropdown-toggle d-none d-sm-inline-block"
                   href="#"
-                  onClick={(e) => { e.preventDefault(); setUserOpen(!userOpen); setNotifOpen(false); setMsgOpen(false); }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setUserOpen(!userOpen);
+                    setNotifOpen(false);
+                    setMsgOpen(false);
+                  }}
                 >
                   <img src="/img/avatars/avatar.jpg" className="avatar img-fluid rounded me-1" alt="Admin" />
                   <span className="text-dark">
@@ -285,12 +315,20 @@ const handleLogout = () => {
                 <a
                   className="nav-icon dropdown-toggle d-inline-block d-sm-none"
                   href="#"
-                  onClick={(e) => { e.preventDefault(); setUserOpen(!userOpen); setNotifOpen(false); setMsgOpen(false); }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setUserOpen(!userOpen);
+                    setNotifOpen(false);
+                    setMsgOpen(false);
+                  }}
                 >
                   <i className="align-middle" data-feather="settings"></i>
                 </a>
                 {userOpen && (
-                  <div className="dropdown-menu dropdown-menu-end show">
+                  <div
+                    className="dropdown-menu dropdown-menu-end show"
+                    style={{ ...dropdownStyle, minWidth: "160px" }}
+                  >
                     <NavLink className="dropdown-item" to="/profile">
                       <i className="align-middle me-1" data-feather="user"></i> Profile
                     </NavLink>
