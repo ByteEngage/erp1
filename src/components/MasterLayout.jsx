@@ -62,7 +62,7 @@ const [currentUser, setCurrentUser] = useState(null);
   useEffect(() => {
     if (window.feather) window.feather.replace();
   });
-  useEffect(() => {
+useEffect(() => {
   const loadUser = () => {
     const user = localStorage.getItem("user");
     setCurrentUser(user ? JSON.parse(user) : null);
@@ -70,9 +70,14 @@ const [currentUser, setCurrentUser] = useState(null);
 
   loadUser();
 
-  window.addEventListener("storage", loadUser);
-  return () => window.removeEventListener("storage", loadUser);
+  // 🔥 Custom event (same tab fix)
+  window.addEventListener("userChanged", loadUser);
+
+  return () => {
+    window.removeEventListener("userChanged", loadUser);
+  };
 }, []);
+
   
   useEffect(() => {
     const handleResize = () => {

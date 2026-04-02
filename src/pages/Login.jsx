@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { axios } from "axios";
 import API from "../api/auth"
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -11,19 +11,18 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      const res = await API.post("/auth/login", {
-        username,
-        password,
-      });
+      const res = await axios.post("http://localhost:5148/Auth/login", {
+  username,
+  password,
+});
 
-      // ✅ Save token
-      localStorage.setItem("token", res.data.token);
+localStorage.setItem("token", res.data.token);
+localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      // ✅ Save user (optional)
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+// 🔥 IMPORTANT
+window.dispatchEvent(new Event("userChanged"));
 
-      // ✅ Redirect
-      navigate("/dashboard");
+navigate("/dashboard");
 
     } catch (err) {
       alert(err.response?.data?.message || err);
