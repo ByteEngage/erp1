@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import API from "../api/auth"
+import API from "../api/api"; // ✅ correct
+
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -11,21 +11,20 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://localhost:5148/Auth/login", {
-  username,
-  password,
-});
+      const res = await API.post("/Auth/login", { // ✅ no localhost
+        username,
+        password,
+      });
 
-localStorage.setItem("token", res.data.token);
-localStorage.setItem("user", JSON.stringify(res.data.user));
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
 
-// 🔥 IMPORTANT
-window.dispatchEvent(new Event("userChanged"));
+      window.dispatchEvent(new Event("userChanged"));
 
-navigate("/dashboard");
+      navigate("/dashboard");
 
     } catch (err) {
-      alert(err.response?.data?.message || err);
+      alert(err.response?.data?.message || "Login failed");
     }
   };
 
@@ -50,7 +49,6 @@ navigate("/dashboard");
                       <input
                         className="form-control form-control-lg"
                         type="text"
-                        placeholder="Enter username"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                       />
@@ -61,7 +59,6 @@ navigate("/dashboard");
                       <input
                         className="form-control form-control-lg"
                         type="password"
-                        placeholder="Enter password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                       />
