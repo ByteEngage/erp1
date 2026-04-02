@@ -125,7 +125,7 @@ export default function MasterLayout({ children, title = "Page" }) {
           }}
         >
           <NavLink className="sidebar-brand" to="/dashboard">
-            <span className="align-middle">ERP System</span>
+            <span className="align-middle">ByteEngage</span>
           </NavLink>
 
           <ul className="sidebar-nav">
@@ -150,10 +150,10 @@ export default function MasterLayout({ children, title = "Page" }) {
 
           <div className="sidebar-cta">
             <div className="sidebar-cta-content">
-              <strong className="d-inline-block mb-2">Upgrade to Pro</strong>
-              <div className="mb-3 text-sm">Looking for more components? Check out our premium version.</div>
+              <strong className="d-inline-block mb-2">Extra Card</strong>
+              <div className="mb-3 text-sm">Looking for more components?</div>
               <div className="d-grid">
-                <a href="#" className="btn btn-primary">Upgrade to Pro</a>
+                <a href="#" className="btn btn-primary">Coming Soon..</a>
               </div>
             </div>
           </div>
@@ -302,7 +302,7 @@ export default function MasterLayout({ children, title = "Page" }) {
             <div className="row text-muted">
               <div className="col-6 text-start">
                 <p className="mb-0">
-                  <strong>ERP System</strong> &copy; {new Date().getFullYear()}
+                  <strong>ByteEngage</strong> &copy; {new Date().getFullYear()}
                 </p>
               </div>
               <div className="col-6 text-end">
