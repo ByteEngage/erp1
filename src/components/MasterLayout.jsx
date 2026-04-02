@@ -54,15 +54,13 @@ export default function MasterLayout({ children, title = "Page" }) {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 992);
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
-
+const [currentUser, setCurrentUser] = useState(null);
 
 // 🔥 ADD THIS
-
-const [currentUser, setCurrentUser] = useState(null);
   useEffect(() => {
     if (window.feather) window.feather.replace();
   });
-useEffect(() => {
+  useEffect(() => {
   const loadUser = () => {
     const user = localStorage.getItem("user");
     setCurrentUser(user ? JSON.parse(user) : null);
@@ -70,15 +68,14 @@ useEffect(() => {
 
   loadUser();
 
-  // 🔥 Custom event (same tab fix)
   window.addEventListener("userChanged", loadUser);
 
   return () => {
     window.removeEventListener("userChanged", loadUser);
   };
 }, []);
+    
 
-  
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 992;
@@ -103,10 +100,13 @@ useEffect(() => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
- const handleLogout = () => {
+const handleLogout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
-  setCurrentUser(null); // 🔥 important
+  setCurrentUser(null);
+
+  window.dispatchEvent(new Event("userChanged")); // 🔥 yaha add
+
   navigate("/");
 };
 
