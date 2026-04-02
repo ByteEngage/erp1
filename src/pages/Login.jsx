@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState(email);
+  const [password, setPassword] = useState(password);
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
