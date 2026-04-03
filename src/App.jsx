@@ -1,26 +1,54 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
-import "./assets/app.css";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import "./assets/app.css";
 
 function App() {
+  const token = localStorage.getItem("token");
+
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/sign-in" element={<Login />} />
-        <Route path="/dashboard"
-        element={
-    <ProtectedRoute>
-      <Dashboard />
-    </ProtectedRoute>
-  }
-/>
+
+        {/* ROOT → Dashboard */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* DASHBOARD */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* LOGIN */}
+        <Route
+          path="/sign-in"
+          element={
+            token ? <Navigate to="/" replace /> : <Login />
+          }
+        />
+
+        {/* UNKNOWN ROUTES */}
+        <Route
+          path="*"
+          element={
+            token ? <Navigate to="/" replace /> : <Navigate to="/sign-in" replace />
+          }
+        />
+
       </Routes>
     </BrowserRouter>
-    
-    
   );
 }
 

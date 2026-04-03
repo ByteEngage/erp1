@@ -94,7 +94,7 @@ export default function MasterLayout({ children, title = "Page" }) {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    window.location.href = "/sign-in";
     setCurrentUser(null);
     window.dispatchEvent(new Event("userChanged"));
     navigate("/");
